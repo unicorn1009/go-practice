@@ -1,6 +1,8 @@
 package myutil
 
-import "errors"
+import (
+	"errors"
+)
 
 // type Person struct {
 // 	Name string
@@ -23,6 +25,7 @@ func (receiver *ArrayQueue) Offer(e interface{}) bool {
 	return err == nil
 }
 
+// 入队函数
 func (receiver *ArrayQueue) addLast(e interface{}) error {
 	if e == nil {
 		return errors.New("元素不可为nil")
@@ -33,6 +36,9 @@ func (receiver *ArrayQueue) addLast(e interface{}) error {
 	// 维护 队尾 指针
 	receiver.tail = (receiver.tail + 1) & (len(receiver.elements) - 1)
 	// TODO 判断是否需要扩容
+	if receiver.tail == receiver.head {
+		receiver.doubleCapacity()
+	}
 
 	return nil
 }
@@ -42,6 +48,7 @@ func (receiver *ArrayQueue) Poll() interface{} {
 	return receiver.pollFirst()
 }
 
+// 出队函数
 func (receiver *ArrayQueue) pollFirst() interface{} {
 	h := receiver.head
 	result := receiver.elements[h]
@@ -54,6 +61,33 @@ func (receiver *ArrayQueue) pollFirst() interface{} {
 	return result
 }
 
+// 查看队头元素
 func (receiver *ArrayQueue) Peek() interface{} {
 	return receiver.elements[receiver.head]
+}
+
+// 队列扩容函数
+func (receiver *ArrayQueue) doubleCapacity() {
+	oldCapacity := len(receiver.elements)
+	newCapacity := oldCapacity << 1
+	if newCapacity < 0 {
+		panic("空间过大")
+	}
+	newArr := make([]interface{}, newCapacity)
+	// 迁移元素
+	r := oldCapacity - receiver.head
+	for i := 0; i < r; i++ {
+		newArr[i] = receiver.elements[receiver.head+i]
+	}
+	for i := r; i < r+receiver.head; i++ {
+		newArr[i] = receiver.elements[i-r]
+	}
+	receiver.elements = newArr
+	receiver.head = 0
+	receiver.tail = oldCapacity
+}
+
+// 获取队列中元素数量
+func (receiver *ArrayQueue) Size() int {
+	return (receiver.tail - receiver.head) & (len(receiver.elements) - 1)
 }
