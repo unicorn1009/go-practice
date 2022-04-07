@@ -73,15 +73,18 @@ func (receiver *ArrayQueue) doubleCapacity() {
 	if newCapacity < 0 {
 		panic("空间过大")
 	}
-	newArr := make([]interface{}, newCapacity)
 	// 迁移元素
-	r := oldCapacity - receiver.head
-	for i := 0; i < r; i++ {
-		newArr[i] = receiver.elements[receiver.head+i]
+	// 迁移方法一
+	newArr := make([]interface{}, newCapacity)
+	for i := 0; i < oldCapacity; i++ {
+		newArr[i] = receiver.elements[(i+receiver.head)&(oldCapacity-1)]
 	}
-	for i := r; i < r+receiver.head; i++ {
-		newArr[i] = receiver.elements[i-r]
-	}
+
+	// 迁移方法二
+	// arr := make([]interface{}, oldCapacity)
+	// newArr := append(receiver.elements[receiver.head:], receiver.elements[:receiver.tail]...)
+	// newArr = append(newArr, arr...)
+
 	receiver.elements = newArr
 	receiver.head = 0
 	receiver.tail = oldCapacity
