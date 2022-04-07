@@ -4,12 +4,6 @@ import (
 	"errors"
 )
 
-// type Person struct {
-// 	Name string
-// 	City string
-// 	Age  int8
-// }
-
 type ArrayQueue struct {
 	elements []interface{}
 	head     int // 队头，出队端
